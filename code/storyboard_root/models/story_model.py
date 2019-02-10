@@ -66,7 +66,7 @@ class StoryModel(db.Model):
             "story_name"  :  self.story_name , 
             "story_details"  :  self.story_description , 
             "storytext_id"  :   self.story_text_id ,
-            "writer_id"  :  self.writer.writer_id , 
+            "writer_id"  :  self.writer.user_id , 
             "writer_name" : self.writer.writer_first_name+" "+self.writer.writer_last_name,
             "created_date" : self.created_date.strftime("%Y-%m-%d %H:%M:%S") if self.created_date is not None else None ,
             "updated_date" : self.updated_date.strftime("%Y-%m-%d %H:%M:%S") if self.updated_date is not None else None , 
@@ -151,9 +151,9 @@ class StoryModel(db.Model):
 
     @classmethod
     def create_story(self, in_category_id, in_story_name, 
-                    in_story_description, in_story, in_writer_id,in_created_by):  #need to inlude story text model
+                    in_story_description, in_story, in_writer_userid,in_created_by):  #need to inlude story text model
         try:
-            obj_writer = WriterModel.get_writer_by_id(in_writer_id)
+            obj_writer = WriterModel.get_writer_by_userid(in_writer_userid)
             obj_storytext = StoryTextModel.create_storytext(in_story)   
             new_story = self(i_story_id=None,i_category_id=in_category_id, i_story_name=in_story_name, 
                            i_story_description=in_story_description, i_created_date=datetime.datetime.now(), 
@@ -169,7 +169,7 @@ class StoryModel(db.Model):
     
     @classmethod
     def update_story(self,in_story_id,in_category_id, in_story_name, 
-                            in_story_description, in_storytext, in_writer_id, in_updated_by): 
+                            in_story_description, in_storytext, in_writer_userid, in_updated_by): 
         try:
             existing_story = self.get_story_by_id(in_story_id) # reusing the "get_storydetails_by_id" function of this class
             
@@ -182,9 +182,10 @@ class StoryModel(db.Model):
             if in_story_name is not None:
                 existing_story.story_name = in_story_name        
 
-            if in_writer_id is not None:
-                obj_writer = WriterModel.get_writer_by_id(in_writer_id)
-                existing_story.writer=obj_writer
+            if in_writer_userid is not None:
+                obj_writer = WriterModel.get_writer_by_userid(in_writer_userid)
+                if obj_writer:
+                    existing_story.writer=obj_writer
 
             if in_storytext is not None:
                StoryTextModel.update_storytext(existing_story.story_text_id,in_storytext)

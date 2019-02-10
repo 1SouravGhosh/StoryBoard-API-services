@@ -107,7 +107,11 @@ class Story_List(Resource):
                 return { "message" : "Story doesn't exist" }
             else:
                 for story in stories:
-                    storylist_json.update({story.story_id : { "story_name":story.story_name, "story_details":story.story_description, "writer_id":story.writer_id, "view":story.total_view, "rating":story.average_rating, "writer_name":story.writer.writer_first_name+" "+story.writer.writer_last_name }})
+                    storylist_json.update(
+                        {story.story_id : { "story_name":story.story_name, "story_details":story.story_description, 
+                                            "writer_id":story.writer.user_id if story.writer else "error", 
+                                            "view":story.total_view, "rating":story.average_rating, 
+                                            "writer_name": ( story.writer.writer_first_name if story.writer else "error" ) + " " + ( story.writer.writer_last_name if story.writer else "error" ) }})
                 return storylist_json
         except:
             print("exception occured resource")
@@ -125,7 +129,7 @@ class Writer_List(Resource): #need to be modified
                 return { "message" : "data doesn't exist" }
             else:
                 for writer in writers:
-                    if(writer.writer_id is not None and writer.writer_first_name is not None or writer.writer_last_name is not None):
+                    if(writer.user_id is not None and writer.writer_first_name is not None or writer.writer_last_name is not None):
                         writerlist_json.update({writer.writer_id : { "writer_name": writer.writer_first_name+" "+writer.writer_last_name }})
                 
                 return writerlist_json
