@@ -41,7 +41,8 @@ class CategoryModel(db.Model):
             "created_date" : self.created_date.strftime("%Y-%m-%d %H:%M:%S") if self.created_date is not None else None ,
             "updated_date" : self.updated_date.strftime("%Y-%m-%d %H:%M:%S") if self.updated_date is not None else None ,
             "created_by" : self.created_by ,
-            "updated_by" : self.updated_by
+            "updated_by" : self.updated_by ,
+            "selected" : False #this is used in front end. to reduce mobile app resource usage it is sent from api
         }
 
     @classmethod

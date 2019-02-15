@@ -12,13 +12,13 @@ from storyboard_root.models.user_model import UserModel
 
 
 parser = reqparse.RequestParser()
-parser.add_argument("story_id", type = int, help = "Please pass a valid story name")
-parser.add_argument("category_id", type = int, help = "Please pass a valid story name")
+parser.add_argument("story_id", type = int, help = "Please pass a valid story_id")
+parser.add_argument("category_id", type = int, help = "Please pass a valid category_id")
 parser.add_argument("story_name", type = str, help = "Please pass a valid story name")  
-parser.add_argument("story_details", type = str, help = "Please pass a valid story name")  
-parser.add_argument("story", type = str, help = "Please pass a valid story name")
-parser.add_argument("writer_userid", type = int, help = "Please pass a valid story name")  
-parser.add_argument("userid", type = int, help = "Please pass a valid story name")
+parser.add_argument("story_details", type = str, help = "Please pass a valid story_details")  
+parser.add_argument("story", type = str, help = "Please pass a valid story")
+parser.add_argument("writer_userid", type = int, help = "Please pass a valid writer_userid")  
+parser.add_argument("userid", type = int, help = "Please pass a valid userid")
 
 
 class Story(Resource):
@@ -72,15 +72,14 @@ class Story(Resource):
 
     def delete(self):
         try:
-            data = parser.parse_args() 
-            story = StoryModel.get_story_by_id(data["story_id"])    
+            story = StoryModel.get_story_by_id(request.args["story_id"])    
             if story is None:
-                return {"message" : "record does not exist"}
+                return {"message" : "story does not exist"}
             elif story is not None:
-                StoryModel.delete_story_by_id(data["story_id"])
-                story = StoryModel.get_story_by_id(data["story_id"])
+                StoryModel.delete_story_by_id(request.args["story_id"])
+                story = StoryModel.get_story_by_id(request.args["story_id"])
                 if story is None:
-                    return {"message" : "record deleted successfully"}  
+                    return {"message" : "story deleted successfully"}  
         except:
             print("exception occured")
 
@@ -111,7 +110,9 @@ class Story_List(Resource):
                         {story.story_id : { "story_name":story.story_name, "story_details":story.story_description, 
                                             "writer_id":story.writer.user_id if story.writer else "error", 
                                             "view":story.total_view, "rating":story.average_rating, 
-                                            "writer_name": ( story.writer.writer_first_name if story.writer else "error" ) + " " + ( story.writer.writer_last_name if story.writer else "error" ) }})
+                                            "writer_name": ( story.writer.writer_first_name if story.writer else "error" ) + " " + ( story.writer.writer_last_name if story.writer else "error" ),
+                                            "is_selected" : False #this used in front end. to reduce resource usage this sent from api. 
+                                        }})
                 return storylist_json
         except:
             print("exception occured resource")
@@ -122,7 +123,7 @@ class Story_List(Resource):
 class Writer_List(Resource): #need to be modified
 
     def get(self):
-        # try:
+        try:
             writerlist_json={}
             writers = StoryModel.get_writer_list()
             if writers is None:
@@ -133,5 +134,5 @@ class Writer_List(Resource): #need to be modified
                         writerlist_json.update({writer.writer_id : { "writer_name": writer.writer_first_name+" "+writer.writer_last_name }})
                 
                 return writerlist_json
-        # except:
-            # print("exception occured")
+        except:
+            print("exception occured")

@@ -7,6 +7,12 @@ from storyboard_root.models.category_model import CategoryModel
 from sqlalchemy.dialects.postgresql import json
 from sqlalchemy.dialects.postgresql.dml import insert
 
+parser = reqparse.RequestParser()
+parser.add_argument("category_id", type = int, help = "Please pass a valid category id")
+parser.add_argument("category_name", type = str, help = "Please pass a valid category name")
+parser.add_argument("category_details", type = str, help = "Please pass a valid category detail")  
+parser.add_argument("user_id", type = int, help = "Please pass a valid user id")  
+
 
 class Category(Resource):
 
@@ -24,10 +30,6 @@ class Category(Resource):
 
     def post(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("category_name", type = str, help = "Please pass a valid category name")
-            parser.add_argument("category_details", type = str, help = "Please pass a valid category name")  
-            parser.add_argument("user_id", type = int, help = "Please pass a valid category name")  
             data = parser.parse_args() 
             print(data["category_name"] + data["category_details"])
             CategoryModel.create_category(data["category_name"] or None,data["category_details"] or None,data["user_id"] or None)  
@@ -56,12 +58,7 @@ class Category(Resource):
 
 
     def put(self):
-        try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("category_id", type = int, help = "Please pass a valid category id")
-            parser.add_argument("category_name", type = str, help = "Please pass a valid category name")
-            parser.add_argument("category_details", type = str, help = "Please pass a valid category detail")  
-            parser.add_argument("user_id", type = int, help = "Please pass a valid user id")  
+        try:            
             data = parser.parse_args()
             category = CategoryModel.get_categorydetails_by_id(data["category_id"])   
             if category is None:

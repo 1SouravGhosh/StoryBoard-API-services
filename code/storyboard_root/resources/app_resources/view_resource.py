@@ -8,6 +8,10 @@ from storyboard_root.models.story_model import StoryModel
 from sqlalchemy.dialects.postgresql import json
 from sqlalchemy.dialects.postgresql.dml import insert
 
+parser = reqparse.RequestParser()
+parser.add_argument("story_id", type = int, help = "Please pass a story id")
+parser.add_argument("writer_id", type = int, help = "Please pass a writer id")
+parser.add_argument("user_id", type = int, help = "Please pass a writer id") 
 
 class View(Resource):
 
@@ -24,11 +28,7 @@ class View(Resource):
         
 
     def post(self):     
-        try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("story_id", type = int, help = "Please pass a story id")
-            parser.add_argument("writer_id", type = int, help = "Please pass a writer id")
-            parser.add_argument("user_id", type = int, help = "Please pass a writer id")    
+        try:   
             data = parser.parse_args() 
             if StoryModel.get_if_user_is_writer(data["story_id"],data["user_id"]):
                 return { "message" : "You are the writer! Sit back and Relax." }
@@ -45,8 +45,6 @@ class View(Resource):
 
     def delete(self): #has to be ordered properly
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("story_id", type = int, help = "Please pass a valid view id") 
             data = parser.parse_args() 
             view = ViewModel.get_view_by_story(data["story_id"])    
             if view is None:
@@ -66,9 +64,6 @@ class View(Resource):
 
     def put(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("story_id", type = int, help = "Please pass a story id")
-            parser.add_argument("user_id", type = int, help = "Please pass a writer id")    
             data = parser.parse_args() 
             if StoryModel.get_if_user_is_writer(data["story_id"],data["user_id"]) == False:    
                 ViewModel.update_view(data["story_id"] or 0)  
