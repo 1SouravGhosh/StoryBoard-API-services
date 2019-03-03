@@ -2,11 +2,11 @@ import datetime
 from os.path import getsize
 from xml.etree.ElementTree import tostring
 import psycopg2
-from click import DateTime
 from flask_restful.fields import Boolean, DateTime, Integer
 from psycopg2.extensions import Column
 from sqlalchemy.sql.schema import FetchedValue
 from storyboard_root.resources.database_resources.db_resource import db
+import json
 
 
 class CategoryModel(db.Model):  
@@ -23,8 +23,7 @@ class CategoryModel(db.Model):
     updated_by = db.Column( db.Integer )
         
 
-    def __init__(self,i_category_id,i_category_name,i_category_description,
-                    i_created_date,i_updated_date,i_created_by,i_updated_by):
+    def __init__(self,i_category_id,i_category_name,i_category_description,i_created_date,i_updated_date,i_created_by,i_updated_by):
             self.category_id = i_category_id
             self.category_name = i_category_name 
             self.category_description = i_category_description
@@ -32,18 +31,20 @@ class CategoryModel(db.Model):
             self.updated_date = i_updated_date
             self.created_by = i_created_by
             self.updated_by = i_updated_by
-
+    
     def json(self):
         return { 
-            "category_id" : self.category_id ,
-            "category_name"  : self.category_name ,
-            "category_description" : self.category_description ,
-            "created_date" : self.created_date.strftime("%Y-%m-%d %H:%M:%S") if self.created_date is not None else None ,
-            "updated_date" : self.updated_date.strftime("%Y-%m-%d %H:%M:%S") if self.updated_date is not None else None ,
-            "created_by" : self.created_by ,
-            "updated_by" : self.updated_by ,
-            "selected" : False #this is used in front end. to reduce mobile app resource usage it is sent from api
+            'category_id' : self.category_id if self.category_id else None,
+            'category_name'  : self.category_name if self.category_name else None,
+            'category_description' : self.category_description if self.category_description else None,
+            'created_date' : self.created_date.strftime("%Y-%m-%d %H:%M:%S") if self.created_date else None,
+            'updated_date' : self.updated_date.strftime("%Y-%m-%d %H:%M:%S") if self.updated_date else None,
+            'created_by' : self.created_by if self.created_by else None,
+            'updated_by' : self.updated_by if self.updated_by else None,
+            'selected' : False #this is used in front end. to reduce mobile app resource usage it is sent from api
         }
+            
+
 
     @classmethod
     def get_categorydetails_by_name(self,in_category_name):
@@ -108,10 +109,10 @@ class CategoryModel(db.Model):
     def delete_category_by_id(self,in_category_id):
         try:
             self.query.filter_by(category_id=in_category_id).delete()
+            db.session.commit()
         except:
             print("exception occured")
-        finally:
-            db.session.commit()
+            
 
     
 
